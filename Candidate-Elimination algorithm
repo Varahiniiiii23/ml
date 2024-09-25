@@ -1,0 +1,80 @@
+import csv
+
+# Load the dataset from the CSV file
+def load_data(filename):
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        data = list(reader)
+    return data
+
+# Initialize S and G
+def initialize_hypotheses(n_attributes):
+    # S is the most specific hypothesis (initialized to the first positive example)
+    S = ['ϕ'] * n_attributes
+    
+    # G is the set of most general hypotheses (initialized to the most general hypothesis)
+    G = [['?' for _ in range(n_attributes)]]
+    
+    return S, G
+
+# Check if a hypothesis is consistent with a given example
+def is_consistent(hypothesis, example):
+    for i in range(len(hypothesis)):
+        if hypothesis[i] != '?' and hypothesis[i] != example[i]:
+            return False
+    return True
+
+# Update the specific hypothesis S based on positive examples
+def update_S(S, example):
+    for i in range(len(S)):
+        if S[i] == 'ϕ':  # First positive example
+            S[i] = example[i]
+        elif S[i] != example[i]:
+            S[i] = '?'  # Generalize the hypothesis if there's a mismatch
+    return S
+
+# Update the general hypotheses G based on negative examples
+def update_G(G, S, example, n_attributes):
+    G_new = []
+    for hypothesis in G:
+        if not is_consistent(hypothesis, example):
+            for i in range(n_attributes):
+                if S[i] != '?' and hypothesis[i] == '?':
+                    new_hypothesis = hypothesis.copy()
+                    new_hypothesis[i] = S[i]
+                    if new_hypothesis not in G_new:
+                        G_new.append(new_hypothesis)
+        else:
+            G_new.append(hypothesis)
+    return G_new
+
+# Candidate-Elimination Algorithm
+def candidate_elimination(data):
+    n_attributes = len(data[0]) - 1  # Number of attributes excluding the target
+    S, G = initialize_hypotheses(n_attributes)
+    
+    for example in data:
+        attributes = example[:-1]
+        label = example[-1]
+        
+        if label == 'Yes':
+            # Update S for positive examples
+            S = update_S(S, attributes)
+            
+            # Remove inconsistent hypotheses from G
+            G = [h for h in G if is_consistent(h, attributes)]
+        
+        elif label == 'No':
+            # Update G for negative examples
+            G = update_G(G, S, attributes, n_attributes)
+    
+    return S, G
+
+# Load dataset and run the Candidate-Elimination Algorithm
+filename = 'training_data.csv'  # Make sure your file is named appropriately
+data = load_data(filename)[1:]  # Skip header row
+S_final, G_final = candidate_elimination(data)
+
+# Output the final hypothesis sets
+print("Final specific hypothesis S:", S_final)
+print("Final general hypotheses G:", G_final)
