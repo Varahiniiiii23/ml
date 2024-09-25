@@ -1,0 +1,52 @@
+# Import necessary libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Load the Iris dataset (a famous dataset used for classification problems)
+iris = load_iris()
+
+# Features and target
+X = iris.data
+y = iris.target
+
+# Split the data into training and testing sets (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the data (KNN is sensitive to the scale of the features)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Create the KNN model with k=3 (3 nearest neighbors)
+knn = KNeighborsClassifier(n_neighbors=3)
+
+# Train the model using the training data
+knn.fit(X_train, y_train)
+
+# Predict the target for the test set
+y_pred = knn.predict(X_test)
+
+# Evaluate the model's performance
+accuracy = accuracy_score(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
+
+# Output the results
+print("Accuracy:", accuracy)
+print("\nConfusion Matrix:\n", conf_matrix)
+print("\nClassification Report:\n", class_report)
+
+# Visualization: Plot first two features (for simplicity)
+plt.figure(figsize=(8,6))
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_pred, cmap='viridis', marker='o', edgecolor='k', label='Predicted')
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='coolwarm', marker='x', edgecolor='k', label='Actual')
+plt.title("KNN Classification: Actual vs Predicted (First two features)")
+plt.xlabel(iris.feature_names[0])
+plt.ylabel(iris.feature_names[1])
+plt.legend(['Predicted', 'Actual'])
+plt.show()
