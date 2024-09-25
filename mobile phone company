@@ -1,0 +1,56 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+
+# a) Reading the dataset
+df = pd.read_csv('mobile_price_data.csv')
+
+# b) Print the first five rows
+print("First five rows of the dataset:")
+print(df.head())
+
+# c) Basic statistical computations on the dataset
+print("\nStatistical Summary:")
+print(df.describe())
+
+# d) Check the columns and their data types
+print("\nColumns and their Data Types:")
+print(df.dtypes)
+
+# e) Detect null values and replace them with the mode value if found
+print("\nChecking for null values:")
+print(df.isnull().sum())
+
+if df.isnull().values.any():
+    for column in df.columns:
+        mode_value = df[column].mode()[0]
+        df[column].fillna(mode_value, inplace=True)
+    print("Null values were found and replaced with mode.")
+else:
+    print("No null values found.")
+
+# f) Heatmap to explore dataset correlations
+plt.figure(figsize=(12, 8))
+sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
+plt.title('Feature Correlation Heatmap')
+plt.show()
+
+# g) Splitting the data into training and testing sets
+X = df.drop('price_range', axis=1)  # Features (excluding the price range)
+y = df['price_range']               # Target variable (price range)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# h) Fit the model to Naive Bayes Classifier
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# i) Predict the model
+y_pred = model.predict(X_test)
+
+# j) Find the accuracy of the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy of the Naive Bayes Classifier: {accuracy * 100:.2f}%")
