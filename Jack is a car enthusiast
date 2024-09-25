@@ -1,0 +1,72 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# a) Read the dataset using the Pandas module
+# For the sake of this example, we'll create a synthetic dataset
+# Replace 'car_data.csv' with your actual dataset file path
+# df = pd.read_csv('car_data.csv')
+
+# Synthetic data creation (as an example)
+data = {
+    'Make': ['Toyota', 'Honda', 'Ford', 'BMW', 'Toyota', 'Ford', 'Honda', 'BMW'],
+    'Model': ['Corolla', 'Civic', 'Focus', 'X3', 'Camry', 'Mustang', 'Accord', 'X5'],
+    'Year': [2020, 2019, 2018, 2020, 2021, 2019, 2021, 2020],
+    'Engine Size': [1.8, 2.0, 2.0, 2.5, 2.0, 5.0, 2.4, 3.0],
+    'Doors': [4, 4, 4, 4, 4, 2, 4, 4],
+    'Price': [20000, 22000, 18000, 35000, 24000, 27000, 26000, 48000]
+}
+df = pd.DataFrame(data)
+
+# b) Print the 1st five rows
+print("First five rows of the dataset:")
+print(df.head())
+
+# c) Basic statistical computations on the data set
+print("\nBasic statistical computations:")
+print(df.describe())
+
+# d) The columns and their data types
+print("\nColumns and their data types:")
+print(df.dtypes)
+
+# e) Detect null values in the dataset
+print("\nDetecting null values:")
+print(df.isnull().sum())
+
+# Replace null values with mode value if any
+for column in df.columns:
+    if df[column].isnull().sum() > 0:
+        mode_value = df[column].mode()[0]
+        df[column].fillna(mode_value, inplace=True)
+
+# f) Explore the dataset using heatmap
+plt.figure(figsize=(10, 6))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Heatmap')
+plt.show()
+
+# g) Split the data into test and train
+X = df[['Year', 'Engine Size', 'Doors']]
+y = df['Price']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# h) Fit the model (Using Linear Regression)
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# i) Predict the model
+y_pred = model.predict(X_test)
+
+# j) Find the accuracy of the model
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("\nModel Performance:")
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R^2 Score: {r2:.2f}")
