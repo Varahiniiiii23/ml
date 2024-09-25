@@ -1,0 +1,75 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the breast cancer dataset
+# You can use 'load_breast_cancer' from sklearn.datasets or a CSV file.
+# For this example, we'll use the dataset directly from sklearn.
+from sklearn.datasets import load_breast_cancer
+data = load_breast_cancer()
+
+# Create a DataFrame
+df = pd.DataFrame(data.data, columns=data.feature_names)
+df['target'] = data.target  # Add the target variable
+
+# a) Print the 1st five rows
+print("First five rows of the dataset:")
+print(df.head())
+
+# b) Basic statistical computations on the dataset
+print("\nBasic statistical computations:")
+print(df.describe())
+
+# c) The columns and their data types
+print("\nColumns and their data types:")
+print(df.dtypes)
+
+# d) Detect null values in the dataset
+print("\nDetecting null values:")
+print(df.isnull().sum())
+
+# Replace null values with mode value if any (though there shouldn't be any)
+for column in df.columns:
+    if df[column].isnull().sum() > 0:
+        mode_value = df[column].mode()[0]
+        df[column].fillna(mode_value, inplace=True)
+
+# e) Split the data into features and target variable
+X = df.drop(columns=['target'])  # Features
+y = df['target']  # Target variable
+
+# Split the data into train and test sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the Naive Bayes model
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# Predict on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the performance of the model
+print("\nModel Evaluation:")
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
+
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:")
+print(cm)
+
+# Plotting the confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Malignant', 'Benign'], yticklabels=['Malignant', 'Benign'])
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
+
+# Classification Report
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=['Malignant', 'Benign']))
