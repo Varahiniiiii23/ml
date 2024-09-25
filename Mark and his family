@@ -1,0 +1,70 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# a) Read the house dataset using the Pandas module
+# Replace 'house_data.csv' with your actual dataset file path
+df = pd.read_csv('house_data.csv')  # Example dataset
+
+# b) Print the 1st five rows
+print("First five rows of the dataset:")
+print(df.head())
+
+# c) Basic statistical computations on the dataset
+print("\nBasic statistical computations:")
+print(df.describe())
+
+# d) Print the columns and their data types
+print("\nColumns and their data types:")
+print(df.dtypes)
+
+# e) Detect null values in the dataset
+print("\nDetecting null values:")
+print(df.isnull().sum())
+
+# Replace null values with mode value if any
+for column in df.columns:
+    if df[column].isnull().sum() > 0:
+        mode_value = df[column].mode()[0]
+        df[column].fillna(mode_value, inplace=True)
+
+# f) Explore the dataset using heatmap
+plt.figure(figsize=(10, 6))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Heatmap')
+plt.show()
+
+# g) Split the data into features and target variable
+# Assuming 'price' is the target variable and other columns are features
+X = df.drop(columns=['price'])  # Adjust based on your dataset
+y = df['price']
+
+# Split the data into train and test sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Fit the data to the model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict the price of houses in the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model performance
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("\nModel Performance:")
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R^2 Score: {r2:.2f}")
+
+# Example of predicting the price of a new house
+# Replace with actual feature values for the new house
+new_house_features = np.array([[2000, 3, 2, 1]])  # Example: [Square Footage, Bedrooms, Bathrooms, Garage]
+predicted_price = model.predict(new_house_features)
+
+print(f"\nPredicted price for the new house: ${predicted_price[0]:.2f}")
