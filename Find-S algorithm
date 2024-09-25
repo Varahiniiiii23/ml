@@ -1,0 +1,31 @@
+# Define the dataset
+data = [
+    ['Sunny', 'Warm', 'Normal', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Warm', 'Same', 'Yes'],
+    ['Rainy', 'Cold', 'High', 'Strong', 'Warm', 'Change', 'No'],
+    ['Sunny', 'Warm', 'High', 'Strong', 'Cool', 'Change', 'Yes']
+]
+
+# Extract the features (attributes) and labels
+attributes = ['Sky', 'Air Temp', 'Humidity', 'Wind', 'Water', 'Forecast']
+# The hypothesis will be updated based on positive examples
+hypothesis = ['ϕ'] * len(attributes)
+
+# Find-S algorithm implementation
+def find_s_algorithm(dataset):
+    global hypothesis
+    for example in dataset:
+        if example[-1] == 'Yes':  # Only consider positive examples
+            if hypothesis[0] == 'ϕ':  # First positive example
+                hypothesis = example[:-1]
+            else:
+                for i in range(len(hypothesis)):
+                    if hypothesis[i] != example[i]:
+                        hypothesis[i] = '?'
+    return hypothesis
+
+# Run the Find-S algorithm
+most_specific_hypothesis = find_s_algorithm(data)
+
+# Output the most specific hypothesis
+print("Most specific hypothesis:", most_specific_hypothesis)
