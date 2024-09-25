@@ -1,0 +1,72 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Load the dataset
+# For demonstration, let's create a sample dataset
+# In a real scenario, you'd load your data from a CSV file using pd.read_csv()
+data = {
+    'Sales': [200, 250, 300, 350, 400, 450, 500, 600, 700, 800],
+    'Advertising_Expenditure': [50, 60, 70, 80, 90, 100, 110, 120, 130, 140]
+}
+df = pd.DataFrame(data)
+
+# a) Print the 1st five rows
+print("First five rows of the dataset:")
+print(df.head())
+
+# b) Basic statistical computations on the dataset
+print("\nBasic statistical computations:")
+print(df.describe())
+
+# c) The columns and their data types
+print("\nColumns and their data types:")
+print(df.dtypes)
+
+# d) Explore the data using scatterplot
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Advertising_Expenditure', y='Sales', data=df)
+plt.title('Scatter Plot of Sales vs Advertising Expenditure')
+plt.xlabel('Advertising Expenditure')
+plt.ylabel('Sales')
+plt.show()
+
+# e) Detect null values in the dataset
+print("\nDetecting null values:")
+print(df.isnull().sum())
+
+# If there are null values, replace them with the mode value
+for column in df.columns:
+    if df[column].isnull().sum() > 0:
+        mode_value = df[column].mode()[0]
+        df[column].fillna(mode_value, inplace=True)
+
+# f) Split the data into features (X) and target variable (y)
+X = df[['Advertising_Expenditure']]  # Features
+y = df['Sales']  # Target variable
+
+# Split the data into train and test sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# g) Fit the linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict the model
+y_pred = model.predict(X_test)
+
+# Output predictions
+print("\nPredicted Sales:")
+print(y_pred)
+
+# Calculate performance metrics
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"\nMean Squared Error: {mse:.2f}")
+print(f"R^2 Score: {r2:.2f}")
